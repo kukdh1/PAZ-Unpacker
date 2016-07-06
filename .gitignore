@@ -1,0 +1,8 @@
+/.vs
+*.db
+*.opendb
+*.filters
+/Debug
+/Release
+/x64
+
