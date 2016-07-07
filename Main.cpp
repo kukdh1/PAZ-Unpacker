@@ -368,6 +368,7 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
         
         if (!CreateDirectory(savePath.c_str(), NULL)) {
           if (GetLastError() != ERROR_ALREADY_EXISTS) {
+            MessageBox(NULL, STRING_ERROR_DIRECTORY, L"Error", MB_OK | MB_ICONERROR);
             return -1;
           }
         }

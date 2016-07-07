@@ -56,6 +56,8 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define STRING_PROGRESS_EXTRACT   L"(%d/%d) Extracting..."
 #define STRING_PROGRESS_READY     L""
 
+#define STRING_ERROR_DIRECTORY    L"Fail to create directory"
+
 
 #define ICE_KEY                   ((uint8_t *)"\x51\xF3\x0F\x11\x04\x24\x6A\x00")
 #define ICE_KEY_LEN               8
