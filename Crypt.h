@@ -60,6 +60,7 @@ namespace kukdh1 {
   };
 
   uint32_t calculatePackCRC(uint8_t *data, uint32_t length);
+  uint32_t decompress(uint8_t *in, uint8_t *out);
 }
 
 #endif

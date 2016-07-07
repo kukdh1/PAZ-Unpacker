@@ -124,7 +124,7 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
             app.CMeta = new kukdh1::Meta(app.wpszFolderPath);
             app.CTree = new kukdh1::Tree(kukdh1::Tree::TREE_TYPE_ROOT);
 
-            HANDLE hThread = CreateThread(NULL, 0, FileThread, NULL, NULL, NULL);
+            HANDLE hThread = CreateThread(NULL, 0, FileThread, NULL, 0, NULL);
             CloseHandle(hThread);
           }
           catch (std::exception e) {
@@ -140,15 +140,29 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
       
       break;
     case ID_BUTTON_EXTRACT:
+      {
+        TVITEM tvi;
+        HTREEITEM hTree = TreeView_GetSelection(app.hTreeFileSystem);
+
+        tvi.hItem = hTree;
+        tvi.mask = TVIF_PARAM;
+        TreeView_GetItem(app.hTreeFileSystem, &tvi);
+
+        if (tvi.lParam) {
+          HANDLE hThread = CreateThread(NULL, 0, ExtractThread, (LPVOID)tvi.lParam, 0, NULL);
+          CloseHandle(hThread);
+        }
+      }
+
       break;
   }
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
-		HANDLE_MSG(hWnd, WM_CREATE, Cls_OnCreate);
-		HANDLE_MSG(hWnd, WM_DESTROY, Cls_OnDestroy);
-		HANDLE_MSG(hWnd, WM_SIZE, Cls_OnSize);
+    HANDLE_MSG(hWnd, WM_CREATE, Cls_OnCreate);
+    HANDLE_MSG(hWnd, WM_DESTROY, Cls_OnDestroy);
+    HANDLE_MSG(hWnd, WM_SIZE, Cls_OnSize);
     HANDLE_MSG(hWnd, WM_GETMINMAXINFO, Cls_OnGetMinMaxInfo);
     HANDLE_MSG(hWnd, WM_COMMAND, Cls_OnCommand);
 
@@ -272,6 +286,109 @@ DWORD WINAPI FileThread(LPVOID arg) {
   return 0;
 }
 
+void ExtractFile(std::wstring &path, kukdh1::FileInfo &file, kukdh1::Crypt &cipher) {
+  bool bCompressed = false;
+
+  if (file.uiOriginalSize > file.uiCompressedSize) {
+    bCompressed = true;
+  }
+
+  std::fstream pazfile;
+  std::fstream savefile;
+
+  pazfile.open(file.wsPazFullPath, std::ios::in | std::ios::binary);
+  if (!pazfile.is_open()) {
+    return;
+  }
+
+  savefile.open(path, std::ios::out | std::ios::binary);
+  if (!savefile.is_open()) {
+    return;
+  }
+
+  uint8_t *encrypted;
+  uint8_t *decrypted;
+  uint32_t length = file.uiCompressedSize;
+
+  encrypted = (uint8_t *)calloc(length, 1);
+  pazfile.seekg(file.uiOffset);
+  pazfile.read((char *)encrypted, length);
+  pazfile.close();
+
+  cipher.decrypt(encrypted, length, &decrypted, &length);
+  free(encrypted);
+
+  if (bCompressed) {
+    uint8_t *decompressed = (uint8_t *)calloc(file.uiOriginalSize, 1);
+
+    kukdh1::decompress(decrypted, decompressed);
+    free(decrypted);
+    decrypted = decompressed;
+  }
+
+  savefile.write((char *)decrypted, file.uiOriginalSize);
+  savefile.close();
+  free(decrypted);
+}
+
 DWORD WINAPI ExtractThread(LPVOID arg) {
+  kukdh1::Tree *CTree = (kukdh1::Tree *)arg;
+  kukdh1::CryptICE cipher(ICE_KEY, ICE_KEY_LEN);
+  WCHAR buffer[64];
+  uint32_t uiFiles;
+  std::wstring sFolderPath;
+
+  sFolderPath.resize(4096);
+
+  EnableWindow(app.hButtonExctact, FALSE);
+
+  if (kukdh1::BrowseFolder(NULL, STRING_SAVE_FOLDER, app.wpszFolderPath, (WCHAR *)sFolderPath.c_str(), 4096)) {
+    std::vector<kukdh1::FileInfo> vFileList;
+
+    CTree->GetFileList(vFileList);
+    uiFiles = vFileList.size();
+
+    sFolderPath.resize(wcslen(sFolderPath.c_str()));
+    if (sFolderPath.back() != L'\\') {
+      sFolderPath.push_back(L'\\');
+    }
+
+    SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, uiFiles);
+    uint32_t i = 1;
+
+    for (auto iter = vFileList.begin(); iter != vFileList.end(); iter++) {
+      std::wstring savePath = sFolderPath;
+      std::vector<std::string> paths;
+      kukdh1::ParsePath(iter->sFullPath, paths);
+
+      for (auto path = paths.begin(); path != paths.end() - 1; path++) {
+        std::wstring folder;
+        kukdh1::ConvertWidechar(*path, folder);
+        savePath.append(folder);
+        
+        if (!CreateDirectory(savePath.c_str(), NULL)) {
+          if (GetLastError() != ERROR_ALREADY_EXISTS) {
+            return -1;
+          }
+        }
+        savePath.append(L"\\");
+      }
+
+      std::wstring file;
+      kukdh1::ConvertWidechar(paths.back(), file);
+      savePath.append(file);
+
+      wsprintf(buffer, STRING_PROGRESS_EXTRACT, i, uiFiles);
+      SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
+      ExtractFile(savePath, *iter, cipher);
+      SendMessage(app.hProgressBar, PBM_SETPOS, i++, NULL);
+    }
+  }
+
+  SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)STRING_PROGRESS_READY);
+
+  EnableWindow(app.hButtonExctact, TRUE);
+
   return 0;
 }

@@ -145,4 +145,18 @@ namespace kukdh1 {
   size_t Tree::GetFolderCount() {
     return vChildFolders.size();
   }
+
+  void Tree::GetFileList(std::vector<kukdh1::FileInfo> &vList) {
+    if (ttType == TREE_TYPE_FILE) {
+      vList.push_back(fiFileInfo);
+    }
+    else {
+      for (auto iter = vChildFolders.begin(); iter != vChildFolders.end(); iter++) {
+        (*iter)->GetFileList(vList);
+      }
+      for (auto iter = vChildFiles.begin(); iter != vChildFiles.end(); iter++) {
+        (*iter)->GetFileList(vList);
+      }
+    }
+  }
 }

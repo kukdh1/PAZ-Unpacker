@@ -318,6 +318,7 @@ namespace kukdh1 {
     }
   }
 
+  /* CRC calculation codes from Blackdesert_Launcher.exe (KR Client) */
   uint32_t calculatePackCRC(uint8_t * data, uint32_t length) {
     int v2; // ST24_4@4
     unsigned int v3; // ST20_4@4
@@ -580,5 +581,194 @@ namespace kukdh1 {
     v41 = (v40 ^ v38) - ((v40 >> 18) | (v40 << 14));
 
     return (v41 ^ v39) - ((v41 >> 8) | (v41 << 24));
+  }
+
+  /* Decompress codes from quickbms */
+  uint32_t blackdesert_unpack_core(uint8_t *a1, uint8_t *a2, uint32_t a3, uint8_t *a4, uint32_t a1_size)
+  {
+    static const uint8_t blackdesert_unpack_dwTable[] = {
+      0x4, 0x0, 0x1, 0x0, 0x2, 0x0, 0x1, 0x0, 0x3, 0x0, 0x1, 0x0, 0x2, 0x0, 0x1, 0x0
+    };
+
+    uint8_t *v4; // ebp@1
+    uint8_t *v5; // edi@1
+    signed int v6; // edx@1
+    uint8_t *v7; // esi@1
+    uint32_t v8; // ebx@1
+    int v9; // eax@2
+    uint32_t v10; // edx@4
+    uint8_t *v11; // eax@4
+    uint32_t v12; // edx@9
+    uint32_t v13; // ecx@11
+    int v14; // edx@11
+    uint32_t v15; // ecx@17
+    uint8_t *v16; // ebx@19
+    int v17; // edi@22
+    uint8_t *v18; // ecx@22
+    int v19; // ebx@22
+    int v20; // ecx@26
+    uint8_t *v22; // eax@29
+    uint32_t v23; // [sp+10h] [bp-8h]@10
+    uint8_t *v24; // [sp+14h] [bp-4h]@4
+    uint8_t *v25; // [sp+1Ch] [bp+4h]@1
+
+    v4 = a2;
+    v5 = a1;
+    v8 = 1;
+    v25 = a3 + a2 - 1;
+
+    // simple way to allow raw decompression: specify the input size
+    if (!a1_size) {
+      v6 = (char)((*(uint8_t *)a1 & 2) - 2) != 0 ? 1 : 4;
+      v7 = a1 + 2 * v6 + 1;
+      if (((char)((*(uint8_t *)a1 & 2) - 2) != 0 ? 0 : 3) > 3u)
+        v9 = 0;
+      else {
+        if (v6 == 1) v9 = *(uint8_t *)(a1 + 1);
+        else v9 = *(uint32_t *)(a1 + 1);
+      }
+    }
+    else {
+      v6 = 4;
+      v7 = a1;
+      v9 = a1_size;
+    }
+    v10 = v9 & (0xFFFFFFFFu >> 8 * (4 - v6));
+    v11 = v10 + v5 - 1;
+    v24 = v10 + v5 - 1;
+    while (1)
+    {
+      while (1)
+      {
+        if (v8 == 1)
+        {
+          if (v7 + 3 > v11)
+            return -1;
+          v8 = *(uint32_t *)v7;
+          v7 += 4;
+        }
+        if (v7 + 3 > v11)
+          return -2;
+        v12 = *(uint32_t *)v7;
+        if (!(v8 & 1))
+          break;
+        v23 = v8 >> 1;
+        if (v12 & 3)
+        {
+          if (v12 & 2)
+          {
+            if (v12 & 1)
+            {
+              if ((v12 & 0x7F) == 3)
+              {
+                v13 = v12 >> 15;
+                v14 = ((v12 >> 7) & 0xFF) + 3;
+                v7 += 4;
+              }
+              else
+              {
+                v15 = v12 >> 7;
+                v13 = v15 & 0x1FFFF;
+                v14 = ((v12 >> 2) & 0x1F) + 2;
+                v7 += 3;
+              }
+            }
+            else
+            {
+              v13 = (uint16_t)v12 >> 6;
+              v14 = ((v12 >> 2) & 0xF) + 3;
+              v7 += 2;
+            }
+          }
+          else
+          {
+            v13 = (uint16_t)v12 >> 2;
+            v14 = 3;
+            v7 += 2;
+          }
+        }
+        else
+        {
+          v13 = (uint8_t)v12 >> 2;
+          v14 = 3;
+          ++v7;
+        }
+        v16 = v4 - v13;
+        if (v4 - v13 < a4 || v16 > v4 - 3 || v14 > v25 - v4 - 3)
+          return -3;
+        v17 = 0;
+        v18 = v4;
+        v19 = v16 - v4;
+        do
+        {
+          *(uint32_t *)v18 = *(uint32_t *)(v19 + v18);
+          v17 += 3;
+          v18 += 3;
+        } while (v17 < v14);
+        v8 = v23;
+        v11 = v24;
+        v4 += v14;
+      }
+      if (v4 >= v25 - 10)
+        break;
+      v20 = blackdesert_unpack_dwTable[v8 & 0xF];
+      *(uint32_t *)v4 = v12;
+      v8 >>= v20;
+      v4 += v20;
+      v7 += v20;
+    }
+    if (v4 <= v25)
+    {
+      v22 = v11 + 1;
+      while (1)
+      {
+        if (v8 == 1)
+        {
+          v7 += 4;
+          v8 = 0x80000000;
+        }
+        if (v7 >= v22)
+          break;
+        *(uint8_t *)v4++ = *(uint8_t *)v7++;
+        v8 >>= 1;
+        if (v4 > v25)
+          return v4 - a2;
+      }
+      return -4;
+    }
+    return v4 - a2;
+  }
+
+  /* Decompress codes from quickbms */
+  uint32_t decompress(uint8_t *a1, uint8_t *a2) {
+    signed int v3; // edx@1
+    char v4; // bl@1
+    int v5; // edi@2
+    int v6; // esi@4
+            //int v7; // edi@7
+    int result; // eax@11
+                //unsigned int v9; // edi@12
+    char t;
+
+    t = (char)((a1[0] & 2) - 2);
+    v4 = a1[0];
+    v3 = t != 0 ? 1 : 4;
+    if ((t != 0 ? 0 : 3) > 3u)
+      v5 = 0;
+    else {
+      if (v3 == 1) v5 = a1[v3 + 1];
+      else v5 = *(uint32_t *)(a1 + v3 + 1);
+    }
+    v6 = v5 & (0xFFFFFFFFu >> 8 * (4 - v3));
+
+    {
+      if (v4 & 1)
+        v6 = blackdesert_unpack_core(a1, a2, v6, a2, 0);
+      else
+        memcpy(a2, a1 + 2 * v3 + 1, v6);
+      result = v6;
+    }
+
+    return result;
   }
 }

@@ -42,6 +42,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define STRING_STATUS_IDLE        L"Idle"
 #define STRING_STATUS_BUSY        L"Busy"
 #define STRING_SELECT_FOLDER      L"Select Paz folder"
+#define STRING_SAVE_FOLDER        L"Select folder to save file(s)"
 #define STRING_NO_META_FILE       L"pad00000.meta doesn't exists"
 #define STRING_ALERT              L"Alert"
 #define STRING_META_INFO          L"Version: %d\r\nPAZ file no.: %d\r\nSize: %s"
@@ -52,7 +53,9 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define STRING_PROGRESS_SORTING   L"(2/4) Sorting..."
 #define STRING_PROGRESS_CAPACITY  L"(3/4) Calculate capacities..."
 #define STRING_PROGRESS_ADDING    L"(4/4) Adding data to tree..."
+#define STRING_PROGRESS_EXTRACT   L"(%d/%d) Extracting..."
 #define STRING_PROGRESS_READY     L""
+
 
 #define ICE_KEY                   ((uint8_t *)"\x51\xF3\x0F\x11\x04\x24\x6A\x00")
 #define ICE_KEY_LEN               8
