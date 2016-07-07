@@ -31,5 +31,8 @@ namespace kukdh1 {
 
       file.close();
     }
+    else {
+      throw std::exception();
+    }
   }
 }

@@ -22,8 +22,10 @@ namespace kukdh1 {
 		uint32_t uiOriginalSize;
 
 		std::string sFullPath;
+    std::wstring wsPazFullPath;
 
 		FileInfo(uint8_t *buffer);
+    FileInfo();
 	};
 
 	struct PazFile {

@@ -3,16 +3,20 @@
 namespace kukdh1 {
 	FileInfo::FileInfo(uint8_t *buffer) {
 		memcpy(&uiCRC, buffer + 0, 4);
-		memcpy(&uiFolderID, buffer + 0, 4);
-		memcpy(&uiFileID, buffer + 0, 4);
-		memcpy(&uiOffset, buffer + 0, 4);
-		memcpy(&uiCompressedSize, buffer + 0, 4);
-		memcpy(&uiOriginalSize, buffer + 0, 4);
+		memcpy(&uiFolderID, buffer + 4, 4);
+		memcpy(&uiFileID, buffer + 8, 4);
+		memcpy(&uiOffset, buffer + 12, 4);
+		memcpy(&uiCompressedSize, buffer + 16, 4);
+		memcpy(&uiOriginalSize, buffer + 20, 4);
 	}
+
+  FileInfo::FileInfo() {
+    // DO NOTHING
+  }
 
 	PazFile::PazFile(wchar_t *wpszPazFolder, uint32_t uiPazIndex, CryptICE &cipher) {
 		std::wstring path(wpszPazFolder);
-		std::wstringstream wss(path);
+		std::wstringstream wss(path, std::ios_base::out | std::ios_base::in | std::ios_base::ate);
 
 		wss << L"\\PAD" << std::setw(5) << std::setfill(L'0') << uiPazIndex << L".PAZ";
 
@@ -33,10 +37,15 @@ namespace kukdh1 {
 			memcpy(&uiPathLength, buffer + 8, 4);
 
 			// Read file info
+      uint8_t *infos = (uint8_t *)calloc(uiFileCount * 24, 1);
+      file.read((char *)infos, uiFileCount * 24);
+
 			for (uint32_t i = 0; i < uiFileCount; i++) {
-				file.read((char *)buffer, 24);
-				vFileInfo.push_back(FileInfo(buffer));
+				vFileInfo.push_back(FileInfo(infos + i * 24));
+        vFileInfo.back().wsPazFullPath = path;
 			}
+
+      free(infos);
 
 			// Read encrypted file names
 			uint8_t *encrypted;
@@ -49,10 +58,18 @@ namespace kukdh1 {
 			cipher.decrypt(encrypted, uiPathLength, &decrypted, &uiPathLength);
 
 			// Parse
-			std::stringstream ss((char *)decrypted);
+      std::vector<std::string> paths;
+      char *ptr = (char *)decrypted;
 
+      for (; ptr < (char *)decrypted + uiPathLength; ) {
+        paths.push_back(ptr);
+        ptr += paths.back().length() + 1;
+      }
+
+      //* can be parallelize
 			for (auto iter = vFileInfo.begin(); iter != vFileInfo.end(); iter++) {
-				std::getline(ss, iter->sFullPath, '\0');
+        iter->sFullPath = paths.at(iter->uiFolderID);
+        iter->sFullPath.append(paths.at(iter->uiFileID));
 			}
 
 			// Cleanup

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <exception>
 
 namespace kukdh1 {
   struct PAZTable {
