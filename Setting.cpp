@@ -70,6 +70,13 @@ namespace kukdh1 {
         if (string) {
           pDefaultLanguage.at(i) = string.child_value();
         }
+        else {
+          string = node.append_child(std::to_wstring(i).c_str());
+
+          if (string) {
+            string.text().set(pDefaultLanguage.at(i).c_str());
+          }
+        }
       }
     }
   }

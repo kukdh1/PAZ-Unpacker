@@ -105,8 +105,11 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
     case ID_BUTTON_OPEN:
       {
         WCHAR *pszFolderPath = (WCHAR *)calloc(4096, sizeof(WCHAR));
-        
-        if (kukdh1::BrowseFolder(hWnd, app.CSetting.getString(kukdh1::Setting::ID_SELECT_FOLDER_TO_OPEN).c_str(), L"C:\\", pszFolderPath, 4096)) {
+        std::wstring wsLastPath;
+
+        app.CSetting.getData(SETTING_LAST_FOLDER, wsLastPath, L"C:\\");
+
+        if (kukdh1::BrowseFolder(hWnd, app.CSetting.getString(kukdh1::Setting::ID_SELECT_FOLDER_TO_OPEN).c_str(), wsLastPath.c_str(), pszFolderPath, 4096)) {
           {
             TreeView_DeleteAllItems(app.hTreeFileSystem);
             SendMessage(app.hStaticInfo, WM_SETTEXT, NULL, (LPARAM)L"");
@@ -117,6 +120,8 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
 
           app.wpszFolderPath = (WCHAR *)calloc(wcslen(pszFolderPath) + 1, sizeof(WCHAR));
           wcscpy_s(app.wpszFolderPath, wcslen(pszFolderPath) + 1, pszFolderPath);
+
+          app.CSetting.setData(SETTING_LAST_FOLDER, app.wpszFolderPath);
 
           wsprintf(pszFolderPath, app.CSetting.getString(kukdh1::Setting::ID_CAPTION).c_str(), app.wpszFolderPath);
           SetWindowText(hWnd, pszFolderPath);
