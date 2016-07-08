@@ -153,7 +153,9 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MetaFile.cpp" />
     <ClCompile Include="PazFile.cpp" />
+    <ClCompile Include="Setting.cpp" />
     <ClCompile Include="Tree.cpp" />
+    <ClCompile Include="xml\pugixml.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Crypt.h" />
@@ -161,7 +163,10 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="MetaFile.h" />
     <ClInclude Include="PazFile.h" />
+    <ClInclude Include="Setting.h" />
     <ClInclude Include="Tree.h" />
+    <ClInclude Include="xml\pugiconfig.hpp" />
+    <ClInclude Include="xml\pugixml.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

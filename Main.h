@@ -12,6 +12,7 @@
 #include "Tree.h"
 #include "MetaFile.h"
 #include "PazFile.h"
+#include "Setting.h"
 
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "uxtheme.lib")
@@ -37,28 +38,6 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define ID_STATIC                 11
 #define ID_STATUSBAR              20
 
-#define STRING_CLASS              L"PAZ Unpacker"
-#define STRING_CAPTION            L"PAZ Unpacker - %s"
-#define STRING_STATUS_IDLE        L"Idle"
-#define STRING_STATUS_BUSY        L"Busy"
-#define STRING_SELECT_FOLDER      L"Select Paz folder"
-#define STRING_SAVE_FOLDER        L"Select folder to save file(s)"
-#define STRING_NO_META_FILE       L"pad00000.meta doesn't exists"
-#define STRING_ALERT              L"Alert"
-#define STRING_META_INFO          L"Version: %d\r\nPAZ file no.: %d\r\nSize: %s"
-#define STRING_FILE_INFO          L"Name: %S\r\nSize: %s\r\nPaz file: %s\r\nPath: %S"
-#define STRING_FOLDER_INFO        L"Name: %S\r\nSize: %s"
-
-#define STRING_PROGRESS_READING   L"(1/4) Processing %d/%d..."
-#define STRING_PROGRESS_SORTING   L"(2/4) Sorting..."
-#define STRING_PROGRESS_CAPACITY  L"(3/4) Calculate capacities..."
-#define STRING_PROGRESS_ADDING    L"(4/4) Adding data to tree..."
-#define STRING_PROGRESS_EXTRACT   L"(%d/%d) Extracting..."
-#define STRING_PROGRESS_READY     L""
-
-#define STRING_ERROR_DIRECTORY    L"Fail to create directory"
-
-
 #define ICE_KEY                   ((uint8_t *)"\x51\xF3\x0F\x11\x04\x24\x6A\x00")
 #define ICE_KEY_LEN               8
 
@@ -75,6 +54,7 @@ typedef struct _AppData {
 
   kukdh1::Tree *CTree;
   kukdh1::Meta *CMeta;
+  kukdh1::Setting CSetting;
 
   WCHAR *wpszFolderPath;
   HFONT hFont;

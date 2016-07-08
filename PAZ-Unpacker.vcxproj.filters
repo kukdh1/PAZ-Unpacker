@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\pugixml">
+      <UniqueIdentifier>{0b263f70-47ae-4d5a-90a9-d161d7376fa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pugixml">
+      <UniqueIdentifier>{be0d6103-6c71-4a80-ac9f-bba8a53de957}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -33,6 +39,12 @@
     <ClCompile Include="Tree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Setting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xml\pugixml.cpp">
+      <Filter>Source Files\pugixml</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Crypt.h">
@@ -52,6 +64,15 @@
     </ClInclude>
     <ClInclude Include="Tree.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Setting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xml\pugiconfig.hpp">
+      <Filter>Header Files\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="xml\pugixml.hpp">
+      <Filter>Header Files\pugixml</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

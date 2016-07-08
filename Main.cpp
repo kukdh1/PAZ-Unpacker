@@ -11,6 +11,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	WNDCLASS wndclass;
 	MSG msg;
 	INITCOMMONCONTROLSEX iccex;
+  std::wstring lpszClass = app.CSetting.getString(kukdh1::Setting::ID_CAPTION);
 
 	iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	iccex.dwICC = ICC_WIN95_CLASSES | ICC_PROGRESS_CLASS | ICC_TREEVIEW_CLASSES;
@@ -26,13 +27,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wndclass.hInstance = hInstance;
 	wndclass.lpfnWndProc = WndProc;
-	wndclass.lpszClassName = STRING_CLASS;
+	wndclass.lpszClassName = lpszClass.c_str();
 	wndclass.lpszMenuName = NULL;
 	wndclass.style = CS_VREDRAW | CS_HREDRAW;
 
 	RegisterClass(&wndclass);
 	
-	hWnd = CreateWindow(STRING_CLASS, STRING_CLASS, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	hWnd = CreateWindow(lpszClass.c_str(), lpszClass.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
 
 	while (GetMessage(&msg, NULL, 0, 0)) {
@@ -45,8 +46,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
 BOOL Cls_OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct) {
   /* Create controls */
-  app.hButtonOpen = CreateWindow(WC_BUTTON, L"Open", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0, hWnd, (HMENU)ID_BUTTON_OPEN, lpCreateStruct->hInstance, NULL);
-  app.hButtonExctact = CreateWindow(WC_BUTTON, L"Extract", WS_CHILD | WS_VISIBLE | WS_DISABLED | BS_PUSHBUTTON, 0, 0, 0, 0, hWnd, (HMENU)ID_BUTTON_EXTRACT, lpCreateStruct->hInstance, NULL);
+  app.hButtonOpen = CreateWindow(WC_BUTTON, app.CSetting.getString(kukdh1::Setting::ID_OPEN).c_str(), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0, hWnd, (HMENU)ID_BUTTON_OPEN, lpCreateStruct->hInstance, NULL);
+  app.hButtonExctact = CreateWindow(WC_BUTTON, app.CSetting.getString(kukdh1::Setting::ID_EXTRACT).c_str(), WS_CHILD | WS_VISIBLE | WS_DISABLED | BS_PUSHBUTTON, 0, 0, 0, 0, hWnd, (HMENU)ID_BUTTON_EXTRACT, lpCreateStruct->hInstance, NULL);
 	app.hTreeFileSystem = CreateWindow(WC_TREEVIEW, NULL, WS_CHILD | WS_VISIBLE | TVS_DISABLEDRAGDROP | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_LINESATROOT, 0, 0, 0, 0, hWnd, (HMENU)ID_TREE_FILESYSTEM, lpCreateStruct->hInstance, NULL);
   app.hStatusBar = CreateWindow(STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, 0, 0, 0, 0, hWnd, (HMENU)ID_STATUSBAR, lpCreateStruct->hInstance, NULL);
   app.hStaticInfo = CreateWindow(WC_STATIC, NULL, WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd, (HMENU)ID_STATIC, lpCreateStruct->hInstance, NULL);
@@ -67,7 +68,7 @@ BOOL Cls_OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct) {
   int parts[STATUSBAR_SECTION_COUNT] = { STATUSBAR_SECTION1, STATUSBAR_SECTION2, -1 };
   
   SendMessage(app.hStatusBar, SB_SETPARTS, STATUSBAR_SECTION_COUNT, (LPARAM)parts);
-  SendMessage(app.hStatusBar, SB_SETTEXT, NULL, (LPARAM)STRING_STATUS_IDLE);
+  SendMessage(app.hStatusBar, SB_SETTEXT, NULL, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_STATUS_IDLE).c_str());
 
   /* Set Progress bar */
   RECT rtArea;
@@ -105,7 +106,7 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
       {
         WCHAR *pszFolderPath = (WCHAR *)calloc(4096, sizeof(WCHAR));
         
-        if (kukdh1::BrowseFolder(hWnd, STRING_SELECT_FOLDER, L"C:\\", pszFolderPath, 4096)) {
+        if (kukdh1::BrowseFolder(hWnd, app.CSetting.getString(kukdh1::Setting::ID_SELECT_FOLDER_TO_OPEN).c_str(), L"C:\\", pszFolderPath, 4096)) {
           {
             TreeView_DeleteAllItems(app.hTreeFileSystem);
             SendMessage(app.hStaticInfo, WM_SETTEXT, NULL, (LPARAM)L"");
@@ -117,7 +118,7 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
           app.wpszFolderPath = (WCHAR *)calloc(wcslen(pszFolderPath) + 1, sizeof(WCHAR));
           wcscpy_s(app.wpszFolderPath, wcslen(pszFolderPath) + 1, pszFolderPath);
 
-          wsprintf(pszFolderPath, STRING_CAPTION, app.wpszFolderPath);
+          wsprintf(pszFolderPath, app.CSetting.getString(kukdh1::Setting::ID_CAPTION).c_str(), app.wpszFolderPath);
           SetWindowText(hWnd, pszFolderPath);
 
           try {
@@ -128,10 +129,10 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
             CloseHandle(hThread);
           }
           catch (std::exception e) {
-            MessageBox(hWnd, STRING_NO_META_FILE, STRING_ALERT, MB_OK);
+            MessageBox(hWnd, app.CSetting.getString(kukdh1::Setting::ID_NO_META_FILE_EXISTS).c_str(), app.CSetting.getString(kukdh1::Setting::ID_ALERT).c_str(), MB_OK);
             SAFE_DELETE(app.CMeta);
             SAFE_FREE(app.wpszFolderPath);
-            SetWindowText(hWnd, STRING_CLASS);
+            SetWindowText(hWnd, app.CSetting.getString(kukdh1::Setting::ID_CAPTION).c_str());
           }
         }
 
@@ -186,19 +187,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
                   if (app.CMeta != NULL) {
                     kukdh1::ConvertCapacity(app.CTree->GetCapacity(), capacity);
 
-                    wsprintf(pszBuffer, STRING_META_INFO, app.CMeta->uiVersion, app.CMeta->uiPAZFileCount, capacity.c_str());
+                    wsprintf(pszBuffer, app.CSetting.getString(kukdh1::Setting::ID_META_FILE_INFO).c_str(), app.CMeta->uiVersion, app.CMeta->uiPAZFileCount, capacity.c_str());
                     SendMessage(app.hStaticInfo, WM_SETTEXT, NULL, (LPARAM)pszBuffer);
                   }
 
                   break;
                 case kukdh1::Tree::TREE_TYPE_FOLDER:
                   kukdh1::ConvertCapacity(pTree->GetCapacity(), capacity);
-                  wsprintf(pszBuffer, STRING_FOLDER_INFO, pTree->GetName().c_str(), capacity.c_str());
+                  wsprintf(pszBuffer, app.CSetting.getString(kukdh1::Setting::ID_INTERNAL_FOLDER_INFO).c_str(), pTree->GetName().c_str(), capacity.c_str());
                   SendMessage(app.hStaticInfo, WM_SETTEXT, NULL, (LPARAM)pszBuffer);
                   break;
                 case kukdh1::Tree::TREE_TYPE_FILE:
                   kukdh1::ConvertCapacity(pTree->GetCapacity(), capacity);
-                  wsprintf(pszBuffer, STRING_FILE_INFO, pTree->GetName().c_str(), capacity.c_str(), pTree->GetFileInfo().wsPazFullPath.c_str(), pTree->GetFileInfo().sFullPath.c_str());
+                  wsprintf(pszBuffer, app.CSetting.getString(kukdh1::Setting::ID_INTERNAL_FILE_INFO).c_str(), pTree->GetName().c_str(), capacity.c_str(), pTree->GetFileInfo().wsPazFullPath.c_str(), pTree->GetFileInfo().sFullPath.c_str());
                   SendMessage(app.hStaticInfo, WM_SETTEXT, NULL, (LPARAM)pszBuffer);
                   break;
               }
@@ -222,14 +223,14 @@ DWORD WINAPI FileThread(LPVOID arg) {
 
   EnableWindow(app.hButtonOpen, FALSE);
   EnableWindow(app.hTreeFileSystem, FALSE);
-  SendMessage(app.hStatusBar, SB_SETTEXT, 0, (LPARAM)STRING_STATUS_BUSY);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 0, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_STATUS_BUSY).c_str());
 
   SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, app.CMeta->uiPAZFileCount);
   uint32_t i = 0;
 
   for (auto iter = app.CMeta->vPAZs.begin(); iter != app.CMeta->vPAZs.end(); iter++) {
     SendMessage(app.hProgressBar, PBM_SETPOS, i++, NULL);
-    wsprintf(buffer, STRING_PROGRESS_READING, i, app.CMeta->uiPAZFileCount);
+    wsprintf(buffer, app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READING).c_str(), i, app.CMeta->uiPAZFileCount);
     SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
 
     kukdh1::PazFile paz(app.wpszFolderPath, iter->uiPazFileID, cipher);
@@ -260,19 +261,19 @@ DWORD WINAPI FileThread(LPVOID arg) {
   SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
   SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, 3);
 
-  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)STRING_PROGRESS_SORTING);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_SORTING).c_str());
   app.CTree->SortChild();
   SendMessage(app.hProgressBar, PBM_SETPOS, 1, NULL);
 
-  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)STRING_PROGRESS_CAPACITY);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_CAPACITY).c_str());
   app.CTree->UpdateCapacity();
   SendMessage(app.hProgressBar, PBM_SETPOS, 2, NULL);
 
-  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)STRING_PROGRESS_ADDING);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_ADDING).c_str());
   app.CTree->AddToTree(app.hTreeFileSystem);
   SendMessage(app.hProgressBar, PBM_SETPOS, 3, NULL);
 
-  SendMessage(app.hStatusBar, SB_SETTEXT, 0, (LPARAM)STRING_STATUS_IDLE);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 0, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_STATUS_IDLE).c_str());
   EnableWindow(app.hButtonOpen, TRUE);
   EnableWindow(app.hButtonExctact, TRUE);
   EnableWindow(app.hTreeFileSystem, TRUE);
@@ -281,7 +282,7 @@ DWORD WINAPI FileThread(LPVOID arg) {
   TreeView_Expand(app.hTreeFileSystem, app.CTree->GetHandle(), TVE_EXPAND);
 
   SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
-  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)STRING_PROGRESS_READY);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
 
   return 0;
 }
@@ -342,7 +343,7 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
 
   EnableWindow(app.hButtonExctact, FALSE);
 
-  if (kukdh1::BrowseFolder(NULL, STRING_SAVE_FOLDER, app.wpszFolderPath, (WCHAR *)sFolderPath.c_str(), 4096)) {
+  if (kukdh1::BrowseFolder(NULL, app.CSetting.getString(kukdh1::Setting::ID_SELECT_FOLDER_TO_SAVE).c_str(), app.wpszFolderPath, (WCHAR *)sFolderPath.c_str(), 4096)) {
     std::vector<kukdh1::FileInfo> vFileList;
 
     CTree->GetFileList(vFileList);
@@ -368,7 +369,7 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
         
         if (!CreateDirectory(savePath.c_str(), NULL)) {
           if (GetLastError() != ERROR_ALREADY_EXISTS) {
-            MessageBox(NULL, STRING_ERROR_DIRECTORY, L"Error", MB_OK | MB_ICONERROR);
+            MessageBox(NULL, app.CSetting.getString(kukdh1::Setting::ID_DIRECTORY_CREATE_FAILED).c_str(), app.CSetting.getString(kukdh1::Setting::ID_ERROR).c_str(), MB_OK | MB_ICONERROR);
             return -1;
           }
         }
@@ -379,7 +380,7 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
       kukdh1::ConvertWidechar(paths.back(), file);
       savePath.append(file);
 
-      wsprintf(buffer, STRING_PROGRESS_EXTRACT, i, uiFiles);
+      wsprintf(buffer, app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_EXTRACT).c_str(), i, uiFiles);
       SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
       ExtractFile(savePath, *iter, cipher);
       SendMessage(app.hProgressBar, PBM_SETPOS, i++, NULL);
@@ -387,7 +388,7 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
   }
 
   SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
-  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)STRING_PROGRESS_READY);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
 
   EnableWindow(app.hButtonExctact, TRUE);
 
