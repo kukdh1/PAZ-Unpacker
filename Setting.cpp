@@ -47,6 +47,8 @@ namespace kukdh1 {
     setting.load_file(filepath.c_str());
 
     // Check existance of setting node
+    std::wstring tag(LANGUAGE_TAG);
+
     if (!setting.child(ROOT_NODE_NAME)) {
       setting.append_child(ROOT_NODE_NAME);
     }
@@ -54,7 +56,9 @@ namespace kukdh1 {
       pugi::xml_node node = setting.append_child(LANG_NODE_NAME);
 
       for (uint32_t i = ID_LANG_BEGIN; i < ID_LANG_END; i++) {
-        pugi::xml_node string = node.append_child(std::to_wstring(i).c_str()); 
+        std::wstring tag_name = tag;
+        tag_name.append(std::to_wstring(i));
+        pugi::xml_node string = node.append_child(tag_name.c_str());
 
         if (string) {
           string.text().set(pDefaultLanguage.at(i).c_str());
@@ -65,7 +69,9 @@ namespace kukdh1 {
       pugi::xml_node node = setting.child(LANG_NODE_NAME);
 
       for (uint32_t i = ID_LANG_BEGIN; i < ID_LANG_END; i++) {
-        pugi::xml_node string = node.child(std::to_wstring(i).c_str());
+        std::wstring tag_name = tag;
+        tag_name.append(std::to_wstring(i));
+        pugi::xml_node string = node.child(tag_name.c_str());
 
         if (string) {
           pDefaultLanguage.at(i) = string.child_value();
@@ -83,7 +89,7 @@ namespace kukdh1 {
 
   Setting::~Setting() {
     // Save settings
-    setting.save_file(filepath.c_str());
+    setting.save_file(filepath.c_str(), L"  ", pugi::format_default, pugi::encoding_utf8);
   }
 
   bool Setting::setData(std::wstring name, std::wstring value) {
