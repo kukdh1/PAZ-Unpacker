@@ -77,7 +77,7 @@ namespace kukdh1 {
           pDefaultLanguage.at(i) = string.child_value();
         }
         else {
-          string = node.append_child(std::to_wstring(i).c_str());
+          string = node.append_child(tag_name.c_str());
 
           if (string) {
             string.text().set(pDefaultLanguage.at(i).c_str());
