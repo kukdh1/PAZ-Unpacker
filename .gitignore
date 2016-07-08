@@ -4,4 +4,4 @@
 /Debug
 /Release
 /x64
-
+*.xml
