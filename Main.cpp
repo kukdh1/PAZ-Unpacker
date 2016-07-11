@@ -80,6 +80,14 @@ BOOL Cls_OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct) {
 }
 
 void Cls_OnDestroy(HWND hWnd) {
+  {
+    SAFE_DELETE(app.CTree);
+    SAFE_DELETE(app.CMeta);
+    SAFE_FREE(app.wpszFolderPath);
+  }
+
+  DeleteObject(app.hFont);
+
 	PostQuitMessage(0);
 }
 
