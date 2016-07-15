@@ -131,7 +131,7 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
 
           app.CSetting.setData(SETTING_LAST_FOLDER, app.wpszFolderPath);
 
-          wsprintf(pszFolderPath, app.CSetting.getString(kukdh1::Setting::ID_CAPTION).c_str(), app.wpszFolderPath);
+          wsprintf(pszFolderPath, app.CSetting.getString(kukdh1::Setting::ID_CAPTION_WITH_PATH).c_str(), app.wpszFolderPath);
           SetWindowText(hWnd, pszFolderPath);
 
           try {
