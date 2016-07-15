@@ -50,7 +50,7 @@ BOOL Cls_OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct) {
   app.hButtonExctact = CreateWindow(WC_BUTTON, app.CSetting.getString(kukdh1::Setting::ID_EXTRACT).c_str(), WS_CHILD | WS_VISIBLE | WS_DISABLED | BS_PUSHBUTTON, 0, 0, 0, 0, hWnd, (HMENU)ID_BUTTON_EXTRACT, lpCreateStruct->hInstance, NULL);
 	app.hTreeFileSystem = CreateWindow(WC_TREEVIEW, NULL, WS_CHILD | WS_VISIBLE | TVS_DISABLEDRAGDROP | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_LINESATROOT, 0, 0, 0, 0, hWnd, (HMENU)ID_TREE_FILESYSTEM, lpCreateStruct->hInstance, NULL);
   app.hStatusBar = CreateWindow(STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, 0, 0, 0, 0, hWnd, (HMENU)ID_STATUSBAR, lpCreateStruct->hInstance, NULL);
-  app.hStaticInfo = CreateWindow(WC_STATIC, NULL, WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd, (HMENU)ID_STATIC, lpCreateStruct->hInstance, NULL);
+  app.hStaticInfo = CreateWindow(WC_STATIC, NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, 0, 0, 0, 0, hWnd, (HMENU)ID_STATIC, lpCreateStruct->hInstance, NULL);
 
   /* Set theme*/
   SetWindowTheme(app.hTreeFileSystem, L"Explorer", NULL);
@@ -172,6 +172,18 @@ void Cls_OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify) {
   }
 }
 
+void Cls_OnDrawItem(HWND hWnd, const DRAWITEMSTRUCT * lpDrawItem) {
+  if (lpDrawItem->CtlID == ID_STATIC) {
+    FillRect(lpDrawItem->hDC, &lpDrawItem->rcItem, GetSysColorBrush(COLOR_BTNFACE));
+
+    uint32_t uiLength = SendMessage(lpDrawItem->hwndItem, WM_GETTEXTLENGTH, 0, 0);
+    WCHAR *pszText = (WCHAR *)calloc(uiLength + 1, sizeof(WCHAR));
+    SendMessage(lpDrawItem->hwndItem, WM_GETTEXT, uiLength + 1, (LPARAM)pszText);
+    DrawText(lpDrawItem->hDC, pszText, uiLength, (LPRECT)&lpDrawItem->rcItem, DT_PATH_ELLIPSIS | DT_WORDBREAK);
+    free(pszText);
+  }
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
     HANDLE_MSG(hWnd, WM_CREATE, Cls_OnCreate);
@@ -179,6 +191,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
     HANDLE_MSG(hWnd, WM_SIZE, Cls_OnSize);
     HANDLE_MSG(hWnd, WM_GETMINMAXINFO, Cls_OnGetMinMaxInfo);
     HANDLE_MSG(hWnd, WM_COMMAND, Cls_OnCommand);
+    HANDLE_MSG(hWnd, WM_DRAWITEM, Cls_OnDrawItem);
 
     case WM_NOTIFY:
       {
