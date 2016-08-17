@@ -3,6 +3,7 @@
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 DWORD WINAPI FileThread(LPVOID arg);
 DWORD WINAPI ExtractThread(LPVOID arg);
+DWORD WINAPI AddThread(LPVOID arg);
 
 AppData app;
 
@@ -237,25 +238,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             if (ntv->action == TVE_EXPAND) {
               pTree = (kukdh1::Tree *)ntv->itemNew.lParam;
               if (pTree != NULL) {
-                EnableWindow(app.hTreeFileSystem, FALSE);
-
-                pTree->AddGrandchildsToTree(app.hTreeFileSystem, (LPVOID)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_NEW_ADDING).c_str(), [&](LPVOID arg, size_t i, size_t count) {
-                  WCHAR *pStatusMsg = (WCHAR *)arg;
-                  WCHAR buffer[128];
-
-                  if (i == 0) {
-                    SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, count);
-                  }
-
-                  wsprintf(buffer, pStatusMsg, i, count);
-                  SendMessage(app.hProgressBar, PBM_SETPOS, i, NULL);
-                  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
-                });
-
-                SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
-                SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
-
-                EnableWindow(app.hTreeFileSystem, TRUE);
+                HANDLE hThread = CreateThread(NULL, 0, AddThread, (LPVOID)pTree, NULL, NULL);
+                CloseHandle(hThread);
               }
             }
           }
@@ -449,6 +433,36 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
   SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
 
   EnableWindow(app.hButtonExctact, TRUE);
+
+  return 0;
+}
+
+DWORD WINAPI AddThread(LPVOID arg) {
+  kukdh1::Tree *pTree = (kukdh1::Tree *)arg;
+
+  EnableWindow(app.hTreeFileSystem, FALSE);
+  EnableWindow(app.hButtonOpen, FALSE);
+  EnableWindow(app.hButtonExctact, FALSE);
+
+  pTree->AddGrandchildsToTree(app.hTreeFileSystem, (LPVOID)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_NEW_ADDING).c_str(), [&](LPVOID arg, size_t i, size_t count) {
+    WCHAR *pStatusMsg = (WCHAR *)arg;
+    WCHAR buffer[128];
+
+    if (i == 0) {
+      SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, count);
+    }
+
+    wsprintf(buffer, pStatusMsg, i, count);
+    SendMessage(app.hProgressBar, PBM_SETPOS, i, NULL);
+    SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
+  });
+
+  SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
+  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
+
+  EnableWindow(app.hButtonExctact, TRUE);
+  EnableWindow(app.hButtonOpen, TRUE);
+  EnableWindow(app.hTreeFileSystem, TRUE);
 
   return 0;
 }
