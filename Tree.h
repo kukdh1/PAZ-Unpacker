@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <functional>
 
 #include "PazFile.h"
 #include "Helper.h"
@@ -29,6 +30,7 @@ namespace kukdh1 {
 
       TREE_TYPE ttType;
       HTREEITEM hThis;
+      BOOL bAdded;
 
       FileInfo fiFileInfo;
       LARGE_INTEGER liCapacity;
@@ -38,6 +40,8 @@ namespace kukdh1 {
       ~Tree();
 
       void AddToTree(HWND hTree);
+      void AddChildsToTree(HWND hTree);
+      void AddGrandchildsToTree(HWND hTree, LPVOID arg, std::function<void(LPVOID, size_t, size_t)> callback);
       void SetFileInfo(Tree* pParent, std::string &name, FileInfo &fiFile);
       void SetFolderInfo(Tree* pParent, std::string &name);
       void AddChild(Tree *pChild);

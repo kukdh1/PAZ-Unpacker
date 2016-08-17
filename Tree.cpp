@@ -14,6 +14,7 @@ namespace kukdh1 {
     ttType = type;
     hThis = NULL;
     liCapacity.QuadPart = 0;
+    bAdded = FALSE;
   }
 
   Tree::~Tree() {
@@ -26,9 +27,12 @@ namespace kukdh1 {
   }
 
   void Tree::AddToTree(HWND hTree) {
+    if (bAdded) {
+      return;
+    }
+
     if (ttType == TREE_TYPE_ROOT) {
       hThis = AddTreeItem(hTree, NULL, TVI_ROOT, L"/", (LPARAM)this);
-
     }
     else if (pParent != NULL) {
       std::wstring temp;
@@ -37,12 +41,35 @@ namespace kukdh1 {
       hThis = AddTreeItem(hTree, pParent->GetHandle(), TVI_LAST, (WCHAR *)temp.c_str(), (LPARAM)this);
     }
 
+    bAdded = TRUE;
+  }
+
+  void Tree::AddChildsToTree(HWND hTree) {
     if (ttType != TREE_TYPE_FILE) {
       for (auto iter = vChildFolders.begin(); iter != vChildFolders.end(); iter++) {
         (*iter)->AddToTree(hTree);
       }
       for (auto iter = vChildFiles.begin(); iter != vChildFiles.end(); iter++) {
         (*iter)->AddToTree(hTree);
+      }
+    }
+  }
+
+  void Tree::AddGrandchildsToTree(HWND hTree, LPVOID arg, std::function<void(LPVOID, size_t, size_t)> callback) {
+    if (ttType != TREE_TYPE_FILE) {
+      size_t stAll = 0;
+      size_t i = 0;
+
+      for (auto iter = vChildFolders.begin(); iter != vChildFolders.end(); iter++) {
+        stAll += (*iter)->GetFileCount() + (*iter)->GetFolderCount();
+      }
+
+      callback(arg, i, stAll);
+
+      for (auto iter = vChildFolders.begin(); iter != vChildFolders.end(); iter++) {
+        (*iter)->AddChildsToTree(hTree);
+        i += (*iter)->GetFileCount() + (*iter)->GetFolderCount();
+        callback(arg, i, stAll);
       }
     }
   }
