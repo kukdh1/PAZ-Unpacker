@@ -13,6 +13,7 @@
 #define LANG_NODE_NAME              L"language"
 
 #define SETTING_LAST_FOLDER         L"last_folder_path"
+#define SETTING_LAST_EXTRACT        L"last_extract_path"
 #define LANGUAGE_TAG                L"LANG_ID_"
 
 namespace kukdh1 {

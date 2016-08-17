@@ -364,16 +364,21 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
   WCHAR buffer[64];
   uint32_t uiFiles;
   std::wstring sFolderPath;
+  std::wstring sLastExtractPath;
 
   sFolderPath.resize(4096);
 
+  app.CSetting.getData(SETTING_LAST_EXTRACT, sLastExtractPath, app.wpszFolderPath);
+
   EnableWindow(app.hButtonExctact, FALSE);
 
-  if (kukdh1::BrowseFolder(NULL, app.CSetting.getString(kukdh1::Setting::ID_SELECT_FOLDER_TO_SAVE).c_str(), app.wpszFolderPath, (WCHAR *)sFolderPath.c_str(), 4096)) {
+  if (kukdh1::BrowseFolder(NULL, app.CSetting.getString(kukdh1::Setting::ID_SELECT_FOLDER_TO_SAVE).c_str(), sLastExtractPath.c_str(), (WCHAR *)sFolderPath.c_str(), 4096)) {
     std::vector<kukdh1::FileInfo> vFileList;
 
     CTree->GetFileList(vFileList);
     uiFiles = vFileList.size();
+
+    app.CSetting.setData(SETTING_LAST_EXTRACT, sFolderPath);
 
     sFolderPath.resize(wcslen(sFolderPath.c_str()));
     if (sFolderPath.back() != L'\\') {
