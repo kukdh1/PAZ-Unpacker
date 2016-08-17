@@ -25,7 +25,8 @@ namespace kukdh1 {
       { L"" },
       { L"Fail to create directory" },
       { L"Open" },
-      { L"Extract" }
+      { L"Extract" },
+      { L"(%d/%d) Adding data to tree..." }
     };
 
     // Get current directory

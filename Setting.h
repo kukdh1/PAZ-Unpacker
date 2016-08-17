@@ -42,6 +42,7 @@ namespace kukdh1 {
         ID_DIRECTORY_CREATE_FAILED,
         ID_OPEN,
         ID_EXTRACT,
+        ID_PROGRESS_NEW_ADDING,
         ID_LANG_END
       };
       std::vector<std::wstring> pDefaultLanguage;
