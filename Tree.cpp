@@ -157,6 +157,33 @@ namespace kukdh1 {
     return hThis;
   }
 
+  BOOL Tree::IsAdded() {
+    return bAdded;
+  }
+
+  BOOL Tree::IsChildAdded() {
+    if (ttType != TREE_TYPE_FILE) {
+      if (vChildFiles.size() > 0) {
+        return vChildFiles.at(0)->IsAdded();
+      }
+      else if (vChildFolders.size() > 0) {
+        return vChildFolders.at(0)->IsAdded();
+      }
+    }
+
+    return TRUE;
+  }
+
+  BOOL Tree::IsGrandchildAdded() {
+    if (ttType != TREE_TYPE_FILE) {
+      if (vChildFolders.size() > 0) {
+        return vChildFolders.at(0)->IsChildAdded();
+      }
+    }
+
+    return TRUE;
+  }
+
   std::string Tree::GetName() {
     return sName;
   }

@@ -440,29 +440,31 @@ DWORD WINAPI ExtractThread(LPVOID arg) {
 DWORD WINAPI AddThread(LPVOID arg) {
   kukdh1::Tree *pTree = (kukdh1::Tree *)arg;
 
-  EnableWindow(app.hTreeFileSystem, FALSE);
-  EnableWindow(app.hButtonOpen, FALSE);
-  EnableWindow(app.hButtonExctact, FALSE);
+  if (!pTree->IsGrandchildAdded()) {
+    EnableWindow(app.hTreeFileSystem, FALSE);
+    EnableWindow(app.hButtonOpen, FALSE);
+    EnableWindow(app.hButtonExctact, FALSE);
 
-  pTree->AddGrandchildsToTree(app.hTreeFileSystem, (LPVOID)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_NEW_ADDING).c_str(), [&](LPVOID arg, size_t i, size_t count) {
-    WCHAR *pStatusMsg = (WCHAR *)arg;
-    WCHAR buffer[128];
+    pTree->AddGrandchildsToTree(app.hTreeFileSystem, (LPVOID)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_NEW_ADDING).c_str(), [&](LPVOID arg, size_t i, size_t count) {
+      WCHAR *pStatusMsg = (WCHAR *)arg;
+      WCHAR buffer[128];
 
-    if (i == 0) {
-      SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, count);
-    }
+      if (i == 0) {
+        SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, count);
+      }
 
-    wsprintf(buffer, pStatusMsg, i, count);
-    SendMessage(app.hProgressBar, PBM_SETPOS, i, NULL);
-    SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
-  });
+      wsprintf(buffer, pStatusMsg, i, count);
+      SendMessage(app.hProgressBar, PBM_SETPOS, i, NULL);
+      SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
+    });
 
-  SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
-  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
+    SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
+    SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
 
-  EnableWindow(app.hButtonExctact, TRUE);
-  EnableWindow(app.hButtonOpen, TRUE);
-  EnableWindow(app.hTreeFileSystem, TRUE);
+    EnableWindow(app.hButtonExctact, TRUE);
+    EnableWindow(app.hButtonOpen, TRUE);
+    EnableWindow(app.hTreeFileSystem, TRUE);
+  }
 
   return 0;
 }

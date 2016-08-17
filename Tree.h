@@ -51,6 +51,9 @@ namespace kukdh1 {
       TREE_TYPE GetType();
       FileInfo GetFileInfo();
       HTREEITEM GetHandle();
+      BOOL IsAdded();
+      BOOL IsChildAdded();
+      BOOL IsGrandchildAdded();
       std::string GetName();
       LARGE_INTEGER GetCapacity();
       size_t GetFileCount();
