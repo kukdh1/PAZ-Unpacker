@@ -34,7 +34,7 @@ namespace kukdh1 {
     bi.pidlRoot = NULL;
     bi.pszDisplayName = NULL;
     bi.lpszTitle = szTitle;
-    bi.ulFlags = 0;
+    bi.ulFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
     bi.lpfn = BrowseCallbackProc;
     bi.lParam = (LPARAM)szStartPath;
 
