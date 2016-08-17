@@ -199,9 +199,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
         if (hdr->idFrom == ID_TREE_FILESYSTEM) {
           LPNMTREEVIEW ntv = (LPNMTREEVIEW)lParam;
+          kukdh1::Tree *pTree;
 
           if (hdr->code == TVN_SELCHANGED) {
-            kukdh1::Tree *pTree;
             WCHAR *pszBuffer;
             std::wstring capacity;
             
@@ -232,6 +232,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
             }
 
             free(pszBuffer);
+          }
+          else if (hdr->code == TVN_ITEMEXPANDING) {
+            if (ntv->action == TVE_EXPAND) {
+              pTree = (kukdh1::Tree *)ntv->itemNew.lParam;
+              if (pTree != NULL) {
+                EnableWindow(app.hTreeFileSystem, FALSE);
+
+                pTree->AddGrandchildsToTree(app.hTreeFileSystem, (LPVOID)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_NEW_ADDING).c_str(), [&](LPVOID arg, size_t i, size_t count) {
+                  WCHAR *pStatusMsg = (WCHAR *)arg;
+                  WCHAR buffer[128];
+
+                  if (i == 0) {
+                    SendMessage(app.hProgressBar, PBM_SETRANGE32, 0, count);
+                  }
+
+                  wsprintf(buffer, pStatusMsg, i, count);
+                  SendMessage(app.hProgressBar, PBM_SETPOS, i, NULL);
+                  SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)buffer);
+                });
+
+                SendMessage(app.hProgressBar, PBM_SETPOS, 0, NULL);
+                SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_READY).c_str());
+
+                EnableWindow(app.hTreeFileSystem, TRUE);
+              }
+            }
           }
         }
       }
@@ -297,6 +323,7 @@ DWORD WINAPI FileThread(LPVOID arg) {
 
   SendMessage(app.hStatusBar, SB_SETTEXT, 2, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_PROGRESS_ADDING).c_str());
   app.CTree->AddToTree(app.hTreeFileSystem);
+  app.CTree->AddChildsToTree(app.hTreeFileSystem);
   SendMessage(app.hProgressBar, PBM_SETPOS, 3, NULL);
 
   SendMessage(app.hStatusBar, SB_SETTEXT, 0, (LPARAM)app.CSetting.getString(kukdh1::Setting::ID_STATUS_IDLE).c_str());
