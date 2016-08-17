@@ -177,10 +177,27 @@ void Cls_OnDrawItem(HWND hWnd, const DRAWITEMSTRUCT * lpDrawItem) {
   if (lpDrawItem->CtlID == ID_STATIC) {
     FillRect(lpDrawItem->hDC, &lpDrawItem->rcItem, GetSysColorBrush(COLOR_BTNFACE));
 
+    SIZE size;
+    WCHAR *pszLine, *handle;
     uint32_t uiLength = SendMessage(lpDrawItem->hwndItem, WM_GETTEXTLENGTH, 0, 0);
     WCHAR *pszText = (WCHAR *)calloc(uiLength + 1, sizeof(WCHAR));
+
     SendMessage(lpDrawItem->hwndItem, WM_GETTEXT, uiLength + 1, (LPARAM)pszText);
-    DrawText(lpDrawItem->hDC, pszText, uiLength, (LPRECT)&lpDrawItem->rcItem, DT_PATH_ELLIPSIS | DT_WORDBREAK);
+    GetTextExtentPoint32(lpDrawItem->hDC, pszText, 1, &size);
+
+    pszLine = wcstok_s(pszText, L"\r\n", &handle);
+    for (int i = 0; ; i++) {
+      RECT rtRect;
+
+      if (pszLine == NULL)
+        break;
+
+      SetRect(&rtRect, 0, size.cy * i, lpDrawItem->rcItem.right, size.cy * (i + 1));
+      DrawText(lpDrawItem->hDC, pszLine, wcslen(pszLine), (LPRECT)&rtRect, DT_WORD_ELLIPSIS | DT_NOCLIP);
+
+      pszLine = wcstok_s(NULL, L"\r\n", &handle);
+    }
+
     free(pszText);
   }
 }
