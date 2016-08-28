@@ -323,7 +323,7 @@ namespace kukdh1 {
     int v2; // ST24_4@4
     unsigned int v3; // ST20_4@4
     unsigned int v4; // ST2C_4@4
-    int pInputIndex; // ST20_4@4
+    int v5; // ST20_4@4
     unsigned int v6; // ST24_4@4
     int v7; // ST2C_4@4
     unsigned int v8; // ST20_4@4
@@ -376,10 +376,10 @@ namespace kukdh1 {
         v2 = pdwData0[1] + nBeginValue1;
         v3 = pdwData0[2] + nBeginValue0;
         v4 = (*pdwData0 + nBeginValue2 - v3) ^ ((v3 >> 28) | 16 * v3);
-        pInputIndex = v2 + v3;
+        v5 = v2 + v3;
         v6 = (v2 - v4) ^ ((v4 >> 26) | (v4 << 6));
-        v7 = pInputIndex + v4;
-        v8 = (pInputIndex - v6) ^ ((v6 >> 24) | (v6 << 8));
+        v7 = v5 + v4;
+        v8 = (v5 - v6) ^ ((v6 >> 24) | (v6 << 8));
         v9 = v7 + v6;
         v10 = (v7 - v8) ^ ((v8 >> 16) | (v8 << 16));
         v11 = v9 + v8;
