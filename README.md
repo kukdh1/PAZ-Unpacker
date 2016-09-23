@@ -27,3 +27,6 @@ Damaged (9 bytes are inserted, last 9bytes disappeared, real file data size: 010
 ....
 0109813A: 62 69 6E 50 4B 05 06 00 00 00 00 5E 01 5E 01 21
 ```
+
+## MEMO2
+BDO client (and XIGNCODE3) does not check CRC codes on each packed files.
