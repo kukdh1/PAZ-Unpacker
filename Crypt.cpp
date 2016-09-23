@@ -734,7 +734,7 @@ namespace kukdh1 {
     uint32_t length;
 
     if (pInput[0] & 0x02) {
-      length = (*(uint32_t *)(pInput + 5)) & 0x00FFFFFF;
+      length = (*(uint32_t *)(pInput + 5));
     }
     else {
       length = pInput[2];
