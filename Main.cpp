@@ -8,48 +8,48 @@ DWORD WINAPI AddThread(LPVOID arg);
 AppData app;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
-	HWND hWnd;
-	WNDCLASS wndclass;
-	MSG msg;
-	INITCOMMONCONTROLSEX iccex;
+  HWND hWnd;
+  WNDCLASS wndclass;
+  MSG msg;
+  INITCOMMONCONTROLSEX iccex;
   std::wstring lpszClass = app.CSetting.getString(kukdh1::Setting::ID_CAPTION);
-
-	iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-	iccex.dwICC = ICC_WIN95_CLASSES | ICC_PROGRESS_CLASS | ICC_TREEVIEW_CLASSES;
-
-	if (!InitCommonControlsEx(&iccex)) {
-		return -1;
-	}
-
-	wndclass.cbClsExtra = 0;
-	wndclass.cbWndExtra = 0;
+  
+  iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+  iccex.dwICC = ICC_WIN95_CLASSES | ICC_PROGRESS_CLASS | ICC_TREEVIEW_CLASSES;
+  
+  if (!InitCommonControlsEx(&iccex)) {
+    return -1;
+  }
+  
+  wndclass.cbClsExtra = 0;
+  wndclass.cbWndExtra = 0;
   wndclass.hbrBackground = GetSysColorBrush(COLOR_BTNFACE);
-	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wndclass.hInstance = hInstance;
-	wndclass.lpfnWndProc = WndProc;
-	wndclass.lpszClassName = lpszClass.c_str();
-	wndclass.lpszMenuName = NULL;
-	wndclass.style = CS_VREDRAW | CS_HREDRAW;
-
-	RegisterClass(&wndclass);
-	
-	hWnd = CreateWindow(lpszClass.c_str(), lpszClass.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
-	ShowWindow(hWnd, nCmdShow);
-
-	while (GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-
-	return msg.wParam;
+  wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+  wndclass.hInstance = hInstance;
+  wndclass.lpfnWndProc = WndProc;
+  wndclass.lpszClassName = lpszClass.c_str();
+  wndclass.lpszMenuName = NULL;
+  wndclass.style = CS_VREDRAW | CS_HREDRAW;
+  
+  RegisterClass(&wndclass);
+  
+  hWnd = CreateWindow(lpszClass.c_str(), lpszClass.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+  ShowWindow(hWnd, nCmdShow);
+  
+  while (GetMessage(&msg, NULL, 0, 0)) {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+  
+  return msg.wParam;
 }
 
 BOOL Cls_OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct) {
   /* Create controls */
   app.hButtonOpen = CreateWindow(WC_BUTTON, app.CSetting.getString(kukdh1::Setting::ID_OPEN).c_str(), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0, hWnd, (HMENU)ID_BUTTON_OPEN, lpCreateStruct->hInstance, NULL);
   app.hButtonExctact = CreateWindow(WC_BUTTON, app.CSetting.getString(kukdh1::Setting::ID_EXTRACT).c_str(), WS_CHILD | WS_VISIBLE | WS_DISABLED | BS_PUSHBUTTON, 0, 0, 0, 0, hWnd, (HMENU)ID_BUTTON_EXTRACT, lpCreateStruct->hInstance, NULL);
-	app.hTreeFileSystem = CreateWindow(WC_TREEVIEW, NULL, WS_CHILD | WS_VISIBLE | TVS_DISABLEDRAGDROP | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_LINESATROOT, 0, 0, 0, 0, hWnd, (HMENU)ID_TREE_FILESYSTEM, lpCreateStruct->hInstance, NULL);
+  app.hTreeFileSystem = CreateWindow(WC_TREEVIEW, NULL, WS_CHILD | WS_VISIBLE | TVS_DISABLEDRAGDROP | TVS_HASBUTTONS | TVS_TRACKSELECT | TVS_LINESATROOT, 0, 0, 0, 0, hWnd, (HMENU)ID_TREE_FILESYSTEM, lpCreateStruct->hInstance, NULL);
   app.hStatusBar = CreateWindow(STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, 0, 0, 0, 0, hWnd, (HMENU)ID_STATUSBAR, lpCreateStruct->hInstance, NULL);
   app.hStaticInfo = CreateWindow(WC_STATIC, NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, 0, 0, 0, 0, hWnd, (HMENU)ID_STATIC, lpCreateStruct->hInstance, NULL);
 
@@ -77,7 +77,7 @@ BOOL Cls_OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct) {
   SendMessage(app.hStatusBar, SB_GETRECT, 1, (LPARAM)&rtArea);
   app.hProgressBar = CreateWindow(PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE | PBS_SMOOTH, rtArea.left, rtArea.top, rtArea.right - rtArea.left, rtArea.bottom - rtArea.top, app.hStatusBar, NULL, lpCreateStruct->hInstance, NULL);
 
-	return TRUE;
+  return TRUE;
 }
 
 void Cls_OnDestroy(HWND hWnd) {
@@ -89,7 +89,7 @@ void Cls_OnDestroy(HWND hWnd) {
 
   DeleteObject(app.hFont);
 
-	PostQuitMessage(0);
+  PostQuitMessage(0);
 }
 
 void Cls_OnSize(HWND hWnd, UINT state, int cx, int cy) {
@@ -203,7 +203,7 @@ void Cls_OnDrawItem(HWND hWnd, const DRAWITEMSTRUCT * lpDrawItem) {
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	switch (iMessage) {
+  switch (iMessage) {
     HANDLE_MSG(hWnd, WM_CREATE, Cls_OnCreate);
     HANDLE_MSG(hWnd, WM_DESTROY, Cls_OnDestroy);
     HANDLE_MSG(hWnd, WM_SIZE, Cls_OnSize);
@@ -266,7 +266,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
       return 0;
 	}
 
-	return DefWindowProc(hWnd, iMessage, wParam, lParam);
+  return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
 
 DWORD WINAPI FileThread(LPVOID arg) {
