@@ -603,7 +603,7 @@ namespace kukdh1 {
     pLastOutputIndex = uiDecompressedLength + pOutput - 1;
 
     if (pInput[0] & 0x02) {
-      uiCompressedLength = (*(uint32_t *)(pInput + 1)) & 0x00FFFFFF;
+      uiCompressedLength = (*(uint32_t *)(pInput + 1)) & 0xFFFFFFFF;
       pInputIndex = pInput + 9;
     }
     else {
