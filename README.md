@@ -30,3 +30,17 @@ Damaged (9 bytes are inserted, last 9bytes disappeared, real file data size: 010
 
 ## MEMO2
 BDO client (and XIGNCODE3) does not check CRC codes on each packed files.
+
+## MEMO3
+I could disable secure code using modification of global_utils.luac (TESTED on 2016/08/28)  
+```lua
+function isItemMarketSecureCode()
+  local isSecureCode = true  -- Change this to false
+  if (isGameTypeKorea() or isGameTypeJapan() or isGameTypeRussia() or isGameTypeEnglish() or isGameTypeTaiwan()) and true == isSecureCode then
+    return true
+  else
+    return false
+  end
+end
+```
+On 2016/11/03 patch, secure code is disabled on KR client.
