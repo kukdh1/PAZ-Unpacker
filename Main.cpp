@@ -373,7 +373,7 @@ void ExtractFile(std::wstring &path, kukdh1::FileInfo &file, kukdh1::Crypt &ciph
   cipher.decrypt(encrypted, length, &decrypted, &length);
   free(encrypted);
 
-  if (bCompressed) {
+  if (bCompressed || decrypted[0] == 0x6E) {
     uint8_t *decompressed = (uint8_t *)calloc(file.uiOriginalSize, 1);
 
     kukdh1::decompress(decrypted, decompressed);
