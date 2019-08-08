@@ -341,11 +341,27 @@ DWORD WINAPI FileThread(LPVOID arg) {
   return 0;
 }
 
+// Part of sub_140C5A130 of version 2599
+bool CheckEncrypt(std::string &filename, uint32_t size) {
+  // Check extension
+  size_t pos = filename.length() - 5;
+
+  if (filename.compare(pos, 5, ".dbss") == 0) {
+    return true;
+  }
+
+  return false;
+}
+
 void ExtractFile(std::wstring &path, kukdh1::FileInfo &file, kukdh1::Crypt &cipher) {
   bool bCompressed = false;
+  bool bEncrypted = true;
 
   if (file.uiOriginalSize > file.uiCompressedSize) {
     bCompressed = true;
+  }
+  if (CheckEncrypt(file.sFullPath, file.uiCompressedSize)) {
+    bEncrypted = false;
   }
 
   std::fstream pazfile;
@@ -370,8 +386,13 @@ void ExtractFile(std::wstring &path, kukdh1::FileInfo &file, kukdh1::Crypt &ciph
   pazfile.read((char *)encrypted, length);
   pazfile.close();
 
-  cipher.decrypt(encrypted, length, &decrypted, &length);
-  free(encrypted);
+  if (bEncrypted) {
+    cipher.decrypt(encrypted, length, &decrypted, &length);
+    free(encrypted);
+  }
+  else {
+    decrypted = encrypted;
+  }
 
   if (bCompressed || decrypted[0] == 0x6E) {
     uint8_t *decompressed = (uint8_t *)calloc(file.uiOriginalSize, 1);
